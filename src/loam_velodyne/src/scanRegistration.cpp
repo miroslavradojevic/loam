@@ -73,9 +73,9 @@ bool systemInited = false;
 //激光雷达线数
 const int N_SCANS = 16;
 
-//点云曲率, 40000为一帧点云中点的最大数量
+//​Point cloud curvature, 40000 is the maximum number of points in a point cloud
 float cloudCurvature[40000];
-//曲率点对应的序号
+//​The serial number corresponding to the curvature point
 int cloudSortInd[40000];
 //点是否筛选过标志：0-未筛选过，1-筛选过
 int cloudNeighborPicked[40000];
