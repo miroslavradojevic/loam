@@ -66,7 +66,7 @@ using std::atan2;
 const double scanPeriod = 0.1;
 
 //初始化控制变量
-const int systemDelay = 20;//弃用前20帧初始数据
+const int systemDelay = 20;//​The first 20 frames of initial data are discarded
 int systemInitCount = 0;
 bool systemInited = false;
 
