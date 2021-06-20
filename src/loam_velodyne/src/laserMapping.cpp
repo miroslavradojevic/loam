@@ -392,27 +392,22 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "laserMapping");
   ros::NodeHandle nh;
 
-  ros::Subscriber subLaserCloudCornerLast = nh.subscribe<sensor_msgs::PointCloud2>
-                                            ("/laser_cloud_corner_last", 2, laserCloudCornerLastHandler);
+  ros::Subscriber subLaserCloudCornerLast = nh.subscribe<sensor_msgs::PointCloud2> ("/laser_cloud_corner_last", 2, laserCloudCornerLastHandler);
 
-  ros::Subscriber subLaserCloudSurfLast = nh.subscribe<sensor_msgs::PointCloud2>
-                                          ("/laser_cloud_surf_last", 2, laserCloudSurfLastHandler);
+  ros::Subscriber subLaserCloudSurfLast = nh.subscribe<sensor_msgs::PointCloud2> ("/laser_cloud_surf_last", 2, laserCloudSurfLastHandler);
 
-  ros::Subscriber subLaserOdometry = nh.subscribe<nav_msgs::Odometry> 
-                                     ("/laser_odom_to_init", 5, laserOdometryHandler);
+  ros::Subscriber subLaserOdometry = nh.subscribe<nav_msgs::Odometry> ("/laser_odom_to_init", 5, laserOdometryHandler);
 
-  ros::Subscriber subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2> 
-                                         ("/velodyne_cloud_3", 2, laserCloudFullResHandler);
+  ros::Subscriber subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2> ("/velodyne_cloud_3", 2, laserCloudFullResHandler);
 
-  ros::Subscriber subImu = nh.subscribe<sensor_msgs::Imu> ("/imu/data", 50, imuHandler);
+  ros::Subscriber subImu = nh.subscribe<sensor_msgs::Imu> ("/imu", 50, imuHandler);
 
-  ros::Publisher pubLaserCloudSurround = nh.advertise<sensor_msgs::PointCloud2> 
-                                         ("/laser_cloud_surround", 1);
+  ros::Publisher pubLaserCloudSurround = nh.advertise<sensor_msgs::PointCloud2> ("/laser_cloud_surround", 1);
 
-  ros::Publisher pubLaserCloudFullRes = nh.advertise<sensor_msgs::PointCloud2> 
-                                        ("/velodyne_cloud_registered", 2);
+  ros::Publisher pubLaserCloudFullRes = nh.advertise<sensor_msgs::PointCloud2> ("/velodyne_cloud_registered", 2);
 
   ros::Publisher pubOdomAftMapped = nh.advertise<nav_msgs::Odometry> ("/aft_mapped_to_init", 5);
+  
   nav_msgs::Odometry odomAftMapped;
   odomAftMapped.header.frame_id = "/camera_init";
   odomAftMapped.child_frame_id = "/aft_mapped";
