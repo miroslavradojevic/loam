@@ -415,34 +415,26 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "laserOdometry");
   ros::NodeHandle nh;
 
-  ros::Subscriber subCornerPointsSharp = nh.subscribe<sensor_msgs::PointCloud2>
-                                         ("/laser_cloud_sharp", 2, laserCloudSharpHandler);
+  ros::Subscriber subCornerPointsSharp = nh.subscribe<sensor_msgs::PointCloud2> ("/laser_cloud_sharp", 2, laserCloudSharpHandler);
 
-  ros::Subscriber subCornerPointsLessSharp = nh.subscribe<sensor_msgs::PointCloud2>
-                                             ("/laser_cloud_less_sharp", 2, laserCloudLessSharpHandler);
+  ros::Subscriber subCornerPointsLessSharp = nh.subscribe<sensor_msgs::PointCloud2> ("/laser_cloud_less_sharp", 2, laserCloudLessSharpHandler);
 
-  ros::Subscriber subSurfPointsFlat = nh.subscribe<sensor_msgs::PointCloud2>
-                                      ("/laser_cloud_flat", 2, laserCloudFlatHandler);
+  ros::Subscriber subSurfPointsFlat = nh.subscribe<sensor_msgs::PointCloud2> ("/laser_cloud_flat", 2, laserCloudFlatHandler);
 
-  ros::Subscriber subSurfPointsLessFlat = nh.subscribe<sensor_msgs::PointCloud2>
-                                          ("/laser_cloud_less_flat", 2, laserCloudLessFlatHandler);
+  ros::Subscriber subSurfPointsLessFlat = nh.subscribe<sensor_msgs::PointCloud2> ("/laser_cloud_less_flat", 2, laserCloudLessFlatHandler);
 
-  ros::Subscriber subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2> 
-                                         ("/velodyne_cloud_2", 2, laserCloudFullResHandler);
+  ros::Subscriber subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2> ("/velodyne_cloud_2", 2, laserCloudFullResHandler);
 
-  ros::Subscriber subImuTrans = nh.subscribe<sensor_msgs::PointCloud2> 
-                                ("/imu_trans", 5, imuTransHandler);
+  ros::Subscriber subImuTrans = nh.subscribe<sensor_msgs::PointCloud2> ("/imu_trans", 5, imuTransHandler);
 
-  ros::Publisher pubLaserCloudCornerLast = nh.advertise<sensor_msgs::PointCloud2>
-                                           ("/laser_cloud_corner_last", 2);
+  ros::Publisher pubLaserCloudCornerLast = nh.advertise<sensor_msgs::PointCloud2> ("/laser_cloud_corner_last", 2);
 
-  ros::Publisher pubLaserCloudSurfLast = nh.advertise<sensor_msgs::PointCloud2>
-                                         ("/laser_cloud_surf_last", 2);
+  ros::Publisher pubLaserCloudSurfLast = nh.advertise<sensor_msgs::PointCloud2> ("/laser_cloud_surf_last", 2);
 
-  ros::Publisher pubLaserCloudFullRes = nh.advertise<sensor_msgs::PointCloud2> 
-                                        ("/velodyne_cloud_3", 2);
+  ros::Publisher pubLaserCloudFullRes = nh.advertise<sensor_msgs::PointCloud2> ("/velodyne_cloud_3", 2);
 
   ros::Publisher pubLaserOdometry = nh.advertise<nav_msgs::Odometry> ("/laser_odom_to_init", 5);
+  
   nav_msgs::Odometry laserOdometry;
   laserOdometry.header.frame_id = "/camera_init";
   laserOdometry.child_frame_id = "/laser_odom";
@@ -961,7 +953,7 @@ int main(int argc, char** argv)
       float y2 = cos(rx) * y1 - sin(rx) * z1;
       float z2 = sin(rx) * y1 + cos(rx) * z1;
 
-      //求相对于原点的平移量
+      //Find the amount of translation relative to the origin
       tx = transformSum[3] - (cos(ry) * x2 + sin(ry) * z2);
       ty = transformSum[4] - y2;
       tz = transformSum[5] - (-sin(ry) * x2 + cos(ry) * z2);
@@ -1035,7 +1027,7 @@ int main(int argc, char** argv)
         kdtreeSurfLast->setInputCloud(laserCloudSurfLast);
       }
 
-      //按照跳帧数publich边沿点，平面点以及全部点给laserMapping(每隔一帧发一次)
+      //According to the number of skipped frames, publish edge points, plane points and all points to laserMapping (posted every other frame)
       if (frameCount >= skipFrameNum + 1) {
         frameCount = 0;
 
