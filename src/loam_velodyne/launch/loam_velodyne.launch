@@ -10,6 +10,18 @@
 
   <node pkg="loam_velodyne" type="transformMaintenance" name="transformMaintenance" output="screen"/>
 
+  <node name="log_laser_odom_to_init" pkg="agv_nav" type="log_odom.py" output="screen">
+    <param name="odometry_topic" type="string" value="laser_odom_to_init" />
+  </node>
+
+  <node name="log_aft_mapped_to_init" pkg="agv_nav" type="log_odom.py" output="screen">
+    <param name="odometry_topic" type="string" value="aft_mapped_to_init" />
+  </node>
+
+  <node name="log_integrated_to_init" pkg="agv_nav" type="log_odom.py" output="screen">
+    <param name="odometry_topic" type="string" value="integrated_to_init" />
+  </node>
+
 <!-- 
   <group if="$(arg rviz)">
     <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find loam_velodyne)/rviz_cfg/loam_velodyne.rviz" />
