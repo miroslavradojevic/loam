@@ -46,9 +46,9 @@
 #include <tf/transform_datatypes.h>
 #include <tf/transform_broadcaster.h>
 
-//odometry计算的转移矩阵(实时高频量)
+//Odometry-calculated transition matrix (real-time high-frequency quantity)
 float transformSum[6] = {0};
-//平移增量
+//Translation increment
 float transformIncre[6] = {0};
 //经过mapping矫正过后的最终的世界坐标系下的位姿
 float transformMapped[6] = {0};
@@ -160,7 +160,7 @@ void laserOdometryHandler(const nav_msgs::Odometry::ConstPtr& laserOdometry)
   geometry_msgs::Quaternion geoQuat = laserOdometry->pose.pose.orientation;
   tf::Matrix3x3(tf::Quaternion(geoQuat.z, -geoQuat.x, -geoQuat.y, geoQuat.w)).getRPY(roll, pitch, yaw);
 
-  //得到旋转平移矩阵
+  //Get the rotation and translation matrix
   transformSum[0] = -pitch;
   transformSum[1] = -yaw;
   transformSum[2] = roll;
@@ -184,14 +184,14 @@ void laserOdometryHandler(const nav_msgs::Odometry::ConstPtr& laserOdometry)
   laserOdometry2.pose.pose.position.z = transformMapped[5];
   pubLaserOdometry2Pointer->publish(laserOdometry2);
 
-  //发送旋转平移量
+  //Send the amount of rotation and translation
   laserOdometryTrans2.stamp_ = laserOdometry->header.stamp;
   laserOdometryTrans2.setRotation(tf::Quaternion(-geoQuat.y, -geoQuat.z, geoQuat.x, geoQuat.w));
   laserOdometryTrans2.setOrigin(tf::Vector3(transformMapped[3], transformMapped[4], transformMapped[5]));
   tfBroadcaster2Pointer->sendTransform(laserOdometryTrans2);
 }
 
-//接收laserMapping的转换信息
+//Receive laserMapping conversion information
 void odomAftMappedHandler(const nav_msgs::Odometry::ConstPtr& odomAftMapped)
 {
   double roll, pitch, yaw;
@@ -220,13 +220,12 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "transformMaintenance");
   ros::NodeHandle nh;
 
-  ros::Subscriber subLaserOdometry = nh.subscribe<nav_msgs::Odometry> 
-                                     ("/laser_odom_to_init", 5, laserOdometryHandler);
+  ros::Subscriber subLaserOdometry = nh.subscribe<nav_msgs::Odometry> ("/laser_odom_to_init", 5, laserOdometryHandler);
 
-  ros::Subscriber subOdomAftMapped = nh.subscribe<nav_msgs::Odometry> 
-                                     ("/aft_mapped_to_init", 5, odomAftMappedHandler);
+  ros::Subscriber subOdomAftMapped = nh.subscribe<nav_msgs::Odometry> ("/aft_mapped_to_init", 5, odomAftMappedHandler);
 
   ros::Publisher pubLaserOdometry2 = nh.advertise<nav_msgs::Odometry> ("/integrated_to_init", 5);
+  
   pubLaserOdometry2Pointer = &pubLaserOdometry2;
   laserOdometry2.header.frame_id = "/camera_init";
   laserOdometry2.child_frame_id = "/camera";
