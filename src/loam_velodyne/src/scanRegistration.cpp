@@ -329,14 +329,14 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr& laserCloudMsg)
   for (int i = 0; i < cloudSize; i++) {
     //Coordinate axis exchange, velodyne lidar 
     //The coordinate system of is also converted to the right-handed coordinate system with the z-axis forward and the x-axis to the left
-    point.x = laserCloudIn.points[i].y;
-    point.y = laserCloudIn.points[i].z;
-    point.z = laserCloudIn.points[i].x;
+    point.x = laserCloudIn.points[i].x;
+    point.y = laserCloudIn.points[i].y;
+    point.z = laserCloudIn.points[i].z;
 
     //Calculate the elevation angle of the point (according to the vertical angle calculation formula of the lidar document), 
     //arrange the laser line numbers according to the elevation angle, 
     //and the interval between every two scans of velodyne is 2 degrees
-    float angle = atan(point.y / sqrt(point.x * point.x + point.z * point.z)) * 180 / M_PI;
+    float angle = atan(point.z / sqrt(point.x * point.x + point.y * point.y)) * 180 / M_PI;
 
     int scanID;
     //Elevation angle is rounded (plus or minus 0.5 truncation effect is equal to rounding)
@@ -354,7 +354,7 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr& laserCloudMsg)
     }
 
     //The rotation angle of the point
-    float ori = -atan2(point.x, point.z);
+    float ori = -atan2(point.y, point.x);
 
     if (!halfPassed) {
       //According to whether the scan line is rotated more than halfway, 
