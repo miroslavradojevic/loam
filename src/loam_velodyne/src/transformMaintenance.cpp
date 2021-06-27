@@ -50,11 +50,11 @@
 float transformSum[6] = {0};
 //Translation increment
 float transformIncre[6] = {0};
-//经过mapping矫正过后的最终的世界坐标系下的位姿
+//The pose in the final world coordinate system after mapping correction
 float transformMapped[6] = {0};
-//mapping传递过来的优化前的位姿
+//The posture before optimization passed over by mapping
 float transformBefMapped[6] = {0};
-//mapping传递过来的优化后的位姿
+//The optimized pose passed by mapping
 float transformAftMapped[6] = {0};
 
 ros::Publisher *pubLaserOdometry2Pointer = NULL;
@@ -62,22 +62,22 @@ tf::TransformBroadcaster *tfBroadcaster2Pointer = NULL;
 nav_msgs::Odometry laserOdometry2;
 tf::StampedTransform laserOdometryTrans2;
 
-//odometry的运动估计和mapping矫正量融合之后得到的最终的位姿transformMapped
+//The final pose obtained after fusion of odometry motion estimation and mapping correction amount transformMapped
 void transformAssociateToMap()
 {
-  //平移后绕y轴旋转（-transformSum[1]）
+  //Rotate around the y axis after translation (-transformSum[1]])
   float x1 = cos(transformSum[1]) * (transformBefMapped[3] - transformSum[3]) 
            - sin(transformSum[1]) * (transformBefMapped[5] - transformSum[5]);
   float y1 = transformBefMapped[4] - transformSum[4];
   float z1 = sin(transformSum[1]) * (transformBefMapped[3] - transformSum[3]) 
            + cos(transformSum[1]) * (transformBefMapped[5] - transformSum[5]);
 
-  //绕x轴旋转（-transformSum[0]）
+  //Rotate around the x axis (-transformSum[0])
   float x2 = x1;
   float y2 = cos(transformSum[0]) * y1 + sin(transformSum[0]) * z1;
   float z2 = -sin(transformSum[0]) * y1 + cos(transformSum[0]) * z1;
 
-  //绕z轴旋转（-transformSum[2]）
+  //Rotate around the z axis (-transformSum[2])
   transformIncre[3] = cos(transformSum[2]) * x2 + sin(transformSum[2]) * y2;
   transformIncre[4] = -sin(transformSum[2]) * x2 + cos(transformSum[2]) * y2;
   transformIncre[5] = z2;
@@ -153,7 +153,7 @@ void transformAssociateToMap()
                      - (-sin(transformMapped[1]) * x2 + cos(transformMapped[1]) * z2);
 }
 
-//接收laserOdometry的信息
+//Receive laserOdometry information
 void laserOdometryHandler(const nav_msgs::Odometry::ConstPtr& laserOdometry)
 {
   double roll, pitch, yaw;

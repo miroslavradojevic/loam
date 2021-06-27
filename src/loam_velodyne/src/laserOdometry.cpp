@@ -46,14 +46,14 @@
 #include <tf/transform_datatypes.h>
 #include <tf/transform_broadcaster.h>
 
-//一个点云周期
+//One point cloud cycle
 const float scanPeriod = 0.1;
 
-//跳帧数，控制发给laserMapping的频率
+//The number of frames skipped, controlling the frequency of sending to laserMapping
 const int skipFrameNum = 1;
 bool systemInited = false;
 
-//时间戳信息
+//Timestamp information
 double timeCornerPointsSharp = 0;
 double timeCornerPointsLessSharp = 0;
 double timeSurfPointsFlat = 0;
@@ -61,7 +61,7 @@ double timeSurfPointsLessFlat = 0;
 double timeLaserCloudFullRes = 0;
 double timeImuTrans = 0;
 
-//消息接收标志
+//Message receiving flag
 bool newCornerPointsSharp = false;
 bool newCornerPointsLessSharp = false;
 bool newSurfPointsFlat = false;
@@ -81,7 +81,7 @@ pcl::PointCloud<PointType>::Ptr surfPointsLessFlat(new pcl::PointCloud<PointType
 pcl::PointCloud<PointType>::Ptr laserCloudCornerLast(new pcl::PointCloud<PointType>());
 //less flat points of last frame
 pcl::PointCloud<PointType>::Ptr laserCloudSurfLast(new pcl::PointCloud<PointType>());
-//保存前一个节点发过来的未经处理过的特征点
+//Save the unprocessed feature points sent by the previous node
 pcl::PointCloud<PointType>::Ptr laserCloudOri(new pcl::PointCloud<PointType>());
 pcl::PointCloud<PointType>::Ptr coeffSel(new pcl::PointCloud<PointType>());
 //receive all points
@@ -109,7 +109,7 @@ float pointSearchSurfInd1[40000];
 float pointSearchSurfInd2[40000];
 float pointSearchSurfInd3[40000];
 
-//当前帧相对上一帧的状态转移量，in the local frame
+//The amount of state transition between the current frame and the previous frame, in the local frame
 float transform[6] = {0};
 //当前帧相对于第一帧的状态转移量，in the global frame
 float transformSum[6] = {0};
@@ -958,11 +958,11 @@ int main(int argc, char** argv)
       ty = transformSum[4] - y2;
       tz = transformSum[5] - (-sin(ry) * x2 + cos(ry) * z2);
 
-      //根据IMU修正旋转量
+      //Correct the amount of rotation according to the IMU
       PluginIMURotation(rx, ry, rz, imuPitchStart, imuYawStart, imuRollStart, 
                         imuPitchLast, imuYawLast, imuRollLast, rx, ry, rz);
 
-      //得到世界坐标系下的转移矩阵
+      //Get the transfer matrix in the world coordinate system
       transformSum[0] = rx;
       transformSum[1] = ry;
       transformSum[2] = rz;
@@ -970,10 +970,10 @@ int main(int argc, char** argv)
       transformSum[4] = ty;
       transformSum[5] = tz;
 
-      //欧拉角转换成四元数
+      //Euler angles converted to quaternions
       geometry_msgs::Quaternion geoQuat = tf::createQuaternionMsgFromRollPitchYaw(rz, -rx, -ry);
 
-      //publish四元数和平移量
+      //publish quaternion and translation
       laserOdometry.header.stamp = ros::Time().fromSec(timeSurfPointsLessFlat);
       laserOdometry.pose.pose.orientation.x = -geoQuat.y;
       laserOdometry.pose.pose.orientation.y = -geoQuat.z;
@@ -984,13 +984,13 @@ int main(int argc, char** argv)
       laserOdometry.pose.pose.position.z = tz;
       pubLaserOdometry.publish(laserOdometry);
 
-      //广播新的平移旋转之后的坐标系(rviz)
+      //Broadcast the new coordinate system after translation and rotation (rviz)
       laserOdometryTrans.stamp_ = ros::Time().fromSec(timeSurfPointsLessFlat);
       laserOdometryTrans.setRotation(tf::Quaternion(-geoQuat.y, -geoQuat.z, geoQuat.x, geoQuat.w));
       laserOdometryTrans.setOrigin(tf::Vector3(tx, ty, tz));
       tfBroadcaster.sendTransform(laserOdometryTrans);
 
-      //对点云的曲率比较大和比较小的点投影到扫描结束位置
+      //Projection of points with relatively large and relatively small curvature of the point cloud to the end of the scan
       int cornerPointsLessSharpNum = cornerPointsLessSharp->points.size();
       for (int i = 0; i < cornerPointsLessSharpNum; i++) {
         TransformToEnd(&cornerPointsLessSharp->points[i], &cornerPointsLessSharp->points[i]);
@@ -1002,7 +1002,7 @@ int main(int argc, char** argv)
       }
 
       frameCount++;
-      //点云全部点，每间隔一个点云数据相对点云最后一个点进行畸变校正
+      //All points of the point cloud, and each interval of point cloud data is corrected for distortion relative to the last point of the point cloud
       if (frameCount >= skipFrameNum + 1) {
         int laserCloudFullResNum = laserCloudFullRes->points.size();
         for (int i = 0; i < laserCloudFullResNum; i++) {
@@ -1010,7 +1010,7 @@ int main(int argc, char** argv)
         }
       }
 
-      //畸变校正之后的点作为last点保存等下个点云进来进行匹配
+      //The point after distortion correction is saved as the last point, and the next point cloud comes in for matching
       pcl::PointCloud<PointType>::Ptr laserCloudTemp = cornerPointsLessSharp;
       cornerPointsLessSharp = laserCloudCornerLast;
       laserCloudCornerLast = laserCloudTemp;
@@ -1021,7 +1021,7 @@ int main(int argc, char** argv)
 
       laserCloudCornerLastNum = laserCloudCornerLast->points.size();
       laserCloudSurfLastNum = laserCloudSurfLast->points.size();
-      //点足够多就构建kd-tree，否则弃用此帧，沿用上一帧数据的kd-tree
+      //If there are enough points, construct the kd-tree, otherwise discard this frame and use the kd-tree of the previous frame of data
       if (laserCloudCornerLastNum > 10 && laserCloudSurfLastNum > 100) {
         kdtreeCornerLast->setInputCloud(laserCloudCornerLast);
         kdtreeSurfLast->setInputCloud(laserCloudSurfLast);
