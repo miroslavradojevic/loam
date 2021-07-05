@@ -4,7 +4,7 @@
   <version>0.0.0</version>
 
   <description>
-    This is a ROS implementation of LOAM for Velodyne multiplane laser scanners.
+    ROS implementation of LOAM for Velodyne multiplane laser scanners.
     LOAM is described in the following paper:
     J. Zhang and S. Singh. LOAM: Lidar Odometry and Mapping in Real-time.
       Robotics: Science and Systems Conference (RSS). Berkeley, CA, July 2014.
